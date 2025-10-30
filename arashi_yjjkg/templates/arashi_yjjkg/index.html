@@ -40,7 +40,7 @@ button {
 
 <form method="POST" action="">
   {% csrf_token %}
-  <input type="text" name="idiom" placeholder="四字熟語を入力">
+  <input type="text" name="yjjkg" placeholder="四字熟語を入力">
   <button type="submit">OK</button>
 </form>
 
@@ -51,7 +51,7 @@ button {
 <script>
 document.addEventListener("DOMContentLoaded", function() {
   const form = document.querySelector("form");
-  const input = document.querySelector("input[name='idiom']");
+  const input = document.querySelector("input[name='yjjkg']");
   const result = document.getElementById("result");
 
   form.addEventListener("submit", function(e) {
