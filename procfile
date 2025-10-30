@@ -1,0 +1,2 @@
+web: gunicorn project_arashi.wsgi --log-file -
+python-3.12.10

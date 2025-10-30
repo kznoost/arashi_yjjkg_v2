@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>四字熟語 to ARASHI</title>
+<style>
+/* バナナ絵文字だけ回転 */
+.banana {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ページ全体の簡単なスタイル */
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+input[type="text"] {
+  padding: 5px;
+  font-size: 16px;
+}
+
+button {
+  padding: 5px 10px;
+  font-size: 16px;
+}
+
+#result {
+  margin-top: 20px;
+}
+</style>
+</head>
+<body>
+
+<form method="POST" action="">
+  {% csrf_token %}
+  <input type="text" name="idiom" placeholder="四字熟語を入力">
+  <button type="submit">OK</button>
+</form>
+
+<div id="result">
+  {{ result|safe }}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const form = document.querySelector("form");
+  const input = document.querySelector("input[name='idiom']");
+  const result = document.getElementById("result");
+
+  form.addEventListener("submit", function(e) {
+    const value = input.value.trim();
