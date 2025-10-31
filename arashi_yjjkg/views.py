@@ -13,11 +13,8 @@ def index(request):
     result = ""
     if request.method == "POST":
         yjjkg = request.POST.get("yjjkg", "").strip()  # 入力取得
-        # 入力の先頭・末尾空白を取り、内部の空白も除去（必要なら）
         normalized = re.sub(r'\s+', '', yjjkg)
 
-        # 「純粋に漢字（と々）だけでちょうど4文字」かを先に判定する
-        # ^[\u4E00-\u9FFF々]{4}$ は「漢字または々 がちょうど4文字並んでいる」ことを意味する
         if normalized.lower() in ["banana", "バナナ"]:
             result = '''
 <b>バ～ナ～ナ🍌 ナナナナ🍌 ナナ～ナ～ナ～ナ🍌<br>
@@ -27,11 +24,8 @@ def index(request):
 <br>目まぐるしく回る <span class="banana">🍌</span></b>
 '''
         elif not re.match(r'^[\u4E00-\u9FFF々]{4}$', normalized):
-            # 漢字4字の厳密一致でない場合は四字熟語ではない
             result = markdown.markdown("## This phrase is not 四字熟語")
         else:
-            # ここでは normalized が漢字/々 のみでちょうど4文字である保証がある
-            # 「々」を展開して実際の漢字列を作る（読み変換のため）
             expanded = re.sub(r'(.)々', r'\1\1', normalized)
             kanji_chars = re.findall(r'[\u4E00-\u9FFF]', expanded)
 
