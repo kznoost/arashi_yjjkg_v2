@@ -24,6 +24,9 @@ def index(request):
 バ～ナ🍌 ナナナナ～🍌<br>
 <br>目まぐるしく回る <span class="banana">🍌</span></b>
 '''
+
+        yojijukugo = re.sub(r'(.)々', r'\1\1', yjjkg)
+        
         # 漢字四文字か判定
         elif len(kanji_chars) == 4:
             first_niji = kanji_chars[0] + kanji_chars[1]
