@@ -13,7 +13,8 @@ def index(request):
     result = ""
     if request.method == "POST":
         yjjkg = request.POST.get("yjjkg", "").strip()  # 入力取得
-        kanji_chars = re.findall(r'[\u4E00-\u9FFF]', yjjkg)
+        kanji = re.sub(r'(.)々', r'\1\1', yjjkg)
+        kanji_chars = re.findall(r'[\u4E00-\u9FFF]', kanji)
 
         # BANANAモード
         if yjjkg.lower() in ["banana", "バナナ"]:
@@ -25,7 +26,6 @@ def index(request):
 <br>目まぐるしく回る <span class="banana">🍌</span></b>
 '''
 
-        yojijukugo = re.sub(r'(.)々', r'\1\1', yjjkg)
         
         # 漢字四文字か判定
         elif len(kanji_chars) == 4:
