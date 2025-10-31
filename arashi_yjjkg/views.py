@@ -13,11 +13,12 @@ def index(request):
     result = ""
     if request.method == "POST":
         yjjkg = request.POST.get("yjjkg", "").strip()  # 入力取得
-        kanji = re.sub(r'(.)々', r'\1\1', yjjkg)
-        kanji_chars = re.findall(r'[\u4E00-\u9FFF]', kanji)
+        # 入力の先頭・末尾空白を取り、内部の空白も除去（必要なら）
+        normalized = re.sub(r'\s+', '', yjjkg)
 
-        # BANANAモード
-        if yjjkg.lower() in ["banana", "バナナ"]:
+        # 「純粋に漢字（と々）だけでちょうど4文字」かを先に判定する
+        # ^[\u4E00-\u9FFF々]{4}$ は「漢字または々 がちょうど4文字並んでいる」ことを意味する
+        if normalized.lower() in ["banana", "バナナ"]:
             result = '''
 <b>バ～ナ～ナ🍌 ナナナナ🍌 ナナ～ナ～ナ～ナ🍌<br>
 バ～ナ🍌 ナナナナ🍌 ナナ～ナ～🍌<br>
@@ -25,21 +26,22 @@ def index(request):
 バ～ナ🍌 ナナナナ～🍌<br>
 <br>目まぐるしく回る <span class="banana">🍌</span></b>
 '''
+        elif not re.match(r'^[\u4E00-\u9FFF々]{4}$', normalized):
+            # 漢字4字の厳密一致でない場合は四字熟語ではない
+            result = markdown.markdown("## This phrase is not 四字熟語")
+        else:
+            # ここでは normalized が漢字/々 のみでちょうど4文字である保証がある
+            # 「々」を展開して実際の漢字列を作る（読み変換のため）
+            expanded = re.sub(r'(.)々', r'\1\1', normalized)
+            kanji_chars = re.findall(r'[\u4E00-\u9FFF]', expanded)
 
-        
-        # 漢字四文字か判定
-        elif len(kanji_chars) == 4:
-            first_niji = yjjkg[:2]
-            last_niji = yjjkg[2:]
-            first_sanji = yjjkg[:3]
-
-            # モーラ判定
-            def is_two_mora(yojijukugo):
-                head2 = yojijukugo[:2]
-                hiragana = kanjiconv.to_hiragana(head2)
+            # モーラ判定（先頭2文字の読みが2モーラかどうか）
+            def is_two_mora(yojijukugo_head2):
+                hiragana = kanjiconv.to_hiragana(yojijukugo_head2)
                 mora_count = 0
                 i = 0
                 while i < len(hiragana):
+                    # 小書き仮名が続く場合は1モーラとして扱う
                     if i + 1 < len(hiragana) and hiragana[i + 1] in "ぁぃぅぇぉゃゅょ":
                         mora_count += 1
                         i += 2
@@ -48,7 +50,12 @@ def index(request):
                         i += 1
                 return mora_count == 2
 
-            if is_two_mora("".join(kanji_chars)):
+            # 先頭2文字（展開後）を渡す
+            first_niji = normalized[:2]
+            last_niji = normalized[2:]
+            first_sanji = normalized[:3]
+
+            if is_two_mora(first_niji):
                 # Markdown で歌詞を作成し HTML に変換
                 lyrics_md = f'''
 ### {first_niji}{last_niji}... 
@@ -68,7 +75,5 @@ def index(request):
                 result = markdown.markdown(lyrics_md)
             else:
                 result = markdown.markdown("## SORRY...\n### This phrase is not suitable for A・RA・SHI")
-        else:
-            result = markdown.markdown("## This phrase is not 四字熟語")
 
     return render(request, "arashi_yjjkg/index.html", {"result": result})
