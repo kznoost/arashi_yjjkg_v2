@@ -29,9 +29,9 @@ def index(request):
         
         # 漢字四文字か判定
         elif len(kanji_chars) == 4:
-            first_niji = kanji_chars[0] + kanji_chars[1]
-            last_niji = kanji_chars[2] + kanji_chars[3]
-            first_sanji = kanji_chars[0] + kanji_chars[1] + kanji_chars[2]
+            first_niji = yjjkg[:2]
+            last_niji = yjjkg[2:]
+            first_sanji = yjjkg[:3]
 
             # モーラ判定
             def is_two_mora(yojijukugo):
